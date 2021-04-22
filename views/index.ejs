@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de empleados</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+
+</head>
+<body>
+    <div class="container fluid">
+        <form action="/api/empleados">
+                <center><h2>Formulario</h2></center>
+                <div class="mb-3">
+                    <label class="form-label">Nombre:</label>
+                    <input type="text" id="nombre" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Apellido Paterno:</label>
+                    <input type="text" id="apellidoPaterno" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Apellido Materno:</label>
+                    <input type="text" id="apellidoMaterno" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Email:</label>
+                    <input type="email" id="correo" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Celular:</label>
+                    <input type="text" id="celular" class="form-control" required>
+                </div>
+                <div class="justify-content-left" id="buttons">
+                    <button id="actu" type="submit" class="btn btn-primary mr-1">Enviar</button>
+                    <button id="clean" type="reset" class="btn btn-primary mr-1">Limpiar</button>
+                </div>
+            <br>
+        </form>            
+        <table id="table" class="table">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Apellido Paterno</th>
+                    <th>Apellido Materno</th>
+                    <th>Email</th>
+                    <th>Celular</th>
+                    <th>Editar</th>
+                    <th>Borrar</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</body>
+<script>
+    function lista(id=null) {
+    document.querySelector('form').setAttribute('action',`/api/empleados?empleadoId=${id}`);
+    fetch(document.querySelector('form').getAttribute('action'), {
+              method: 'GET'
+          })
+          .then(res => res.json())
+          .then(data => {
+            if(!id){
+                document.getElementById('clean').click()
+                const registro = document.querySelector('#table tbody');
+                let fila = '';
+                data.forEach(empleado => {
+                    fila += `<tr><td>${empleado.nombre}</td>`
+                    fila += `<td>${empleado.apellidoPaterno}</td>`
+                    fila += `<td>${empleado.apellidoMaterno}</td>`
+                    fila += `<td>${empleado.correo}</td>`
+                    fila += `<td>${empleado.celular}</td>`
+                    fila += `<td> <button onclick="lista(${empleado.id})" class="btn btn-primary">Seleccionar</button></td>`
+                    fila += `<td> <button onclick="borrar()" class="btn btn-primary mr-1">Borrar</button></td></tr>`
+                });
+                registro.innerHTML = fila
+                }else{
+                    document.getElementById('nombre').value = data[0].nombre
+                    document.getElementById('apellidoPaterno').value = data[0].apellidoPaterno
+                    document.getElementById('apellidoMaterno').value = data[0].apellidoMaterno
+                    document.getElementById('correo').value = data[0].correo
+                    document.getElementById('celular').value = data[0].celular
+                }
+            });
+    } 
+    lista();
+    document.getElementById('clean').onclick = ()=>{
+        document.querySelector('form').setAttribute('action',`/api/empleados`)
+    }
+    document.querySelector('form').onsubmit = (event)=>{
+        event.preventDefault()
+        alert("Registro exitoso")
+        var url = document.querySelector('form').getAttribute('action')
+        var metodo = 'POST'
+        
+        if(url.search('empleadoId') > -1){
+        metodo = 'PUT'
+        }
+  
+    fetch(document.querySelector('form').getAttribute('action'), {
+      method: metodo,
+      url : document.querySelector('form').getAttribute('action'),
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        "nombre": document.getElementById('nombre').value,
+        "apellidoPaterno": document.getElementById('apellidoPaterno').value ,
+        "apellidoMaterno": document.getElementById('apellidoMaterno').value,
+        "correo": document.getElementById('correo').value,
+        "celular" : document.getElementById('celular').value,
+        "estatus" : true
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+        metodo = 'POST';
+        document.getElementById('clean').click()
+        document.querySelector('form').setAttribute('action',`/api/empleados`)
+        lista();
+    });
+  }
+function borrar()
+{
+  if(confirm("Eliminar?"))
+  {
+    fetch(document.querySelector('form').getAttribute('action'), {
+      method: 'PUT',
+      url : document.querySelector('form').getAttribute('action'),
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        "nombre": document.getElementById('nombre').value,
+        "apellidoPaterno": document.getElementById('apellidoPaterno').value ,
+        "apellidoMaterno": document.getElementById('apellidoMaterno').value,
+        "correo": document.getElementById('correo').value,
+        "celular" : document.getElementById('celular').value,
+        "estatus" : false
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+        metodo = 'POST';
+        document.getElementById('clean').click()
+        document.querySelector('form').setAttribute('action',`/api/empleados`)
+        lista();
+    });
+  }
+}
+</script>
+</html>
