@@ -12,7 +12,7 @@
 <body>
     <div class="container fluid">
         <form action="/api/empleados">
-                <center><h2>Formulario</h2></center>
+                <h2>Formulario</h2>
                 <div class="mb-3">
                     <label class="form-label">Nombre:</label>
                     <input type="text" id="nombre" class="form-control" required>
@@ -122,9 +122,9 @@
         lista();
     });
   }
-function borrar()
+  function borrar()
 {
-  if(confirm("Eliminar?"))
+  if(confirm("¿Estás seguro que deseas borrar?"))
   {
     fetch(document.querySelector('form').getAttribute('action'), {
       method: 'PUT',
@@ -141,10 +141,11 @@ function borrar()
     })
     .then(res => res.json())
     .then(data => {
+        alert(data.error || data.estatus || data.id);
         metodo = 'POST';
-        document.getElementById('clean').click()
+        document.getElementById('btn_limpiar').click()
         document.querySelector('form').setAttribute('action',`/api/empleados`)
-        lista();
+        listaEmpleados();
     });
   }
 }
